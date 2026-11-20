@@ -2,6 +2,9 @@
 
 **AgentShield** is a lightweight, zero-fee, non-custodial on-chain security registry on **BNB Smart Chain (BSC)** gated by **Binance Wallet Agent ID (`.ai`)**.
 
+- **Live Web App & `baw` Command Builder**: https://yingxiangge.github.io/agentshield/
+- **Verified BSC Mainnet Contract**: [`0xf98135295dCd5426FD52aC9135544C067ce0bdAC`](https://bscscan.com/address/0xf98135295dCd5426FD52aC9135544C067ce0bdAC#code)
+
 ## Why Agent ID (`.ai`)?
 
 Community contract-safety registries in Web3 usually fail due to Sybil attacks: scammers spin up hundreds of fresh wallets to upvote honeypots or downvote legitimate contracts.

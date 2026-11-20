@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AgentShield — Anti-Sybil Contract Safety Registry for .ai Agent IDs</title>
+  <style>
+    :root {
+      --bg: #0b0e11;
+      --card: #141921;
+      --border: #252d3a;
+      --gold: #f0b90b;
+      --gold-dim: rgba(240, 185, 11, 0.14);
+      --text: #eaecef;
+      --muted: #848e9c;
+      --green: #0ecb81;
+      --red: #f6465d;
+      --radius: 12px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 28px 18px 64px; }
+    header {
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+      gap: 12px; margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid var(--border);
+    }
+    .brand h1 { margin: 0; font-size: 26px; letter-spacing: -0.3px; }
+    .brand h1 span { color: var(--gold); }
+    .brand p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px;
+      border-radius: 999px; font-size: 12px; background: var(--card);
+      border: 1px solid var(--border); color: var(--text); text-decoration: none;
+    }
+    .pill.gold { border-color: var(--gold); background: var(--gold-dim); color: var(--gold); }
+    .pill.green { border-color: rgba(14,203,129,0.5); color: var(--green); }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+    @media (max-width: 640px) { .grid3 { grid-template-columns: 1fr; } }
+    .stat {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 16px;
+    }
+    .stat .label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+    .stat .val { font-size: 28px; font-weight: 700; margin-top: 4px; color: var(--gold); font-family: var(--mono); }
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; margin-bottom: 18px;
+    }
+    .card h2 { margin: 0 0 8px; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+    .card p.sub { margin: 0 0 14px; color: var(--muted); font-size: 13.5px; }
+    label { display: block; font-size: 12.5px; color: var(--muted); margin: 10px 0 5px; }
+    input, select, textarea {
+      width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border);
+      background: #0d1117; color: var(--text); font-family: var(--mono); font-size: 13px;
+    }
+    input:focus, select:focus { outline: none; border-color: var(--gold); }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .row > * { flex: 1; min-width: 180px; }
+    button {
+      cursor: pointer; border: none; border-radius: 8px; padding: 10px 16px;
+      font-weight: 600; font-size: 13.5px; transition: opacity 0.15s;
+    }
+    button:hover { opacity: 0.9; }
+    .btn-gold { background: var(--gold); color: #0b0e11; }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-sm { padding: 6px 11px; font-size: 12px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+    .tab {
+      padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      background: #0d1117; color: var(--muted); border: 1px solid var(--border); cursor: pointer;
+    }
+    .tab.active { background: var(--gold-dim); color: var(--gold); border-color: var(--gold); }
+    pre {
+      background: #090c10; border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px; overflow-x: auto; font-family: var(--mono); font-size: 12.5px;
+      white-space: pre-wrap; word-break: break-all; margin: 8px 0 10px; color: #d1d7e0;
+    }
+    .notice {
+      padding: 11px 14px; border-radius: 8px; font-size: 13px; margin-top: 10px;
+      border: 1px solid var(--border); background: #0d1117;
+    }
+    .notice.warn { border-color: rgba(240,185,11,0.5); background: rgba(240,185,11,0.08); color: #f6d365; }
+    .notice.ok { border-color: rgba(14,203,129,0.5); background: rgba(14,203,129,0.08); color: var(--green); }
+    .notice.err { border-color: rgba(246,70,93,0.5); background: rgba(246,70,93,0.08); color: #ff8a98; }
+    .result-box {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px;
+    }
+    @media (max-width: 600px) { .result-box { grid-template-columns: 1fr; } }
+    .mini {
+      background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px;
+    }
+    .mini .k { font-size: 11.5px; color: var(--muted); }
+    .mini .v { font-size: 18px; font-weight: 700; font-family: var(--mono); margin-top: 2px; }
+    .safe { color: var(--green); }
+    .risk { color: var(--red); }
+    .hidden { display: none; }
+    footer { margin-top: 28px; color: var(--muted); font-size: 12.5px; text-align: center; }
+    footer a { color: var(--gold); text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>🛡️ <span>AgentShield</span></h1>
+      <p>Anti-Sybil On-Chain Contract Safety Registry gated by Binance Wallet Agent ID (<code>.ai</code>) on BNB Smart Chain</p>
+    </div>
+    <div class="badges">
+      <a class="pill green" href="https://bscscan.com/address/0xf98135295dCd5426FD52aC9135544C067ce0bdAC#code" target="_blank" rel="noopener">✓ BscScan Verified</a>
+      <a class="pill" href="https://github.com/yingxiangge/agentshield" target="_blank" rel="noopener">GitHub Repo</a>
+      <span class="pill gold">BSC Mainnet (56)</span>
+    </div>
+  </header>
+
+  <div class="grid3">
+    <div class="stat">
+      <div class="label">Safe Agent Badges Claimed</div>
+      <div class="val" id="statBadges">...</div>
+    </div>
+    <div class="stat">
+      <div class="label">Total On-Chain Audits</div>
+      <div class="val" id="statAudits">...</div>
+    </div>
+    <div class="stat">
+      <div class="label">Unique .ai Auditors</div>
+      <div class="val" id="statAuditors">...</div>
+    </div>
+  </div>
+
+  <!-- 1. Live Read-only Contract Safety Lookup -->
+  <section class="card">
+    <h2>🔍 Check Any BSC Contract (Free, No Wallet Needed)</h2>
+    <p class="sub">Query live 1-KYC-.ai-1-vote community safety &amp; risk attestations directly from BSC Mainnet.</p>
+    <div class="row">
+      <input id="lookupTarget" placeholder="0x... BSC contract address" value="0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F" />
+      <button class="btn-gold" style="flex:0 0 auto;" onclick="lookupContract()">Check On-Chain</button>
+    </div>
+    <div id="lookupResult" class="hidden">
+      <div class="result-box">
+        <div class="mini"><div class="k">SAFE Votes (.ai)</div><div class="v safe" id="resSafe">0</div></div>
+        <div class="mini"><div class="k">RISK Votes (.ai)</div><div class="v risk" id="resRisk">0</div></div>
+        <div class="mini"><div class="k">Contract Bytecode</div><div class="v" id="resCode" style="font-size:14px;">-</div></div>
+      </div>
+    </div>
+    <div id="lookupErr" class="notice err hidden"></div>
+  </section>
+
+  <!-- 2. Agentic Wallet / baw One-Click Builder -->
+  <section class="card">
+    <h2>🤖 Participate with Your <code>.ai</code> Agentic Wallet (Zero Fee, Gas Only ~$0.01)</h2>
+    <p class="sub">
+      Binance <code>.ai</code> Agentic Wallets execute natively via <code>baw</code> CLI or AI Agents (OpenClaw / Claude / Binance Agent).
+      Copy the ready-to-run command or paste the prompt directly to your AI Agent.
+    </p>
+
+    <div class="tabs">
+      <button class="tab active" id="tabBadgeBtn" onclick="switchTab('badge')">1. Claim Free Safe Agent Badge</button>
+      <button class="tab" id="tabAuditBtn" onclick="switchTab('audit')">2. Submit Contract Audit Vote</button>
+    </div>
+
+    <label for="agentWallet">Your <code>.ai</code> Agentic Wallet Address (optional — fills <code>--from</code>)</label>
+    <input id="agentWallet" placeholder="0x... (leave blank to use <YOUR_AI_WALLET>)" oninput="refreshBuilders()" />
+
+    <!-- Tab 1: Badge -->
+    <div id="panelBadge">
+      <label>One-Line <code>baw</code> Command (Preview &amp; Execute — Zero Fee, Gas Only)</label>
+      <pre id="bawBadgeCmd"></pre>
+      <div class="row">
+        <button class="btn-gold btn-sm" style="flex:0 0 auto;" onclick="copyEl('bawBadgeCmd', this)">Copy baw Command</button>
+        <button class="btn-outline btn-sm" style="flex:0 0 auto;" onclick="copyEl('promptBadge', this)">Copy Prompt for AI Agent</button>
+      </div>
+      <label style="margin-top:14px;">Or Paste This Prompt Directly to Your AI Agent (OpenClaw / Claude / Binance Agent)</label>
+      <pre id="promptBadge"></pre>
+    </div>
+
+    <!-- Tab 2: Audit -->
+    <div id="panelAudit" class="hidden">
+      <div class="row">
+        <div>
+          <label for="auditTarget">Target BSC Contract Address</label>
+          <input id="auditTarget" value="0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F" oninput="refreshBuilders()" />
+        </div>
+        <div>
+          <label for="auditVerdict">Verdict</label>
+          <select id="auditVerdict" onchange="refreshBuilders()">
+            <option value="safe">SAFE (Attest Legitimate)</option>
+            <option value="risk">RISK (Flag Honeypot / Rug)</option>
+          </select>
+        </div>
+        <div>
+          <label for="auditCode">Risk Code</label>
+          <select id="auditCode" onchange="refreshBuilders()">
+            <option value="0">0 - Safe / Verified</option>
+            <option value="1">1 - Honeypot / High Tax</option>
+            <option value="2">2 - Unverified / Rug Risk</option>
+            <option value="3">3 - Fake Mint / Trap</option>
+            <option value="4">4 - Other</option>
+          </select>
+        </div>
+      </div>
+      <label for="auditNote">Short Evidence Note (<span id="noteByteCount">0</span>/120 UTF-8 bytes)</label>
+      <input id="auditNote" value="Official Binance Wallet Agent ID registry verified safe" oninput="refreshBuilders()" />
+
+      <label>Generated <code>baw</code> Execute Command</label>
+      <pre id="bawAuditCmd"></pre>
+      <div class="row">
+        <button class="btn-gold btn-sm" style="flex:0 0 auto;" onclick="copyEl('bawAuditCmd', this)">Copy baw Command</button>
+        <button class="btn-outline btn-sm" style="flex:0 0 auto;" onclick="copyEl('promptAudit', this)">Copy Prompt for AI Agent</button>
+      </div>
+      <label style="margin-top:14px;">AI Agent Prompt</label>
+      <pre id="promptAudit"></pre>
+    </div>
+  </section>
+
+  <!-- 3. Browser / In-App Wallet Direct Execution -->
+  <section class="card">
+    <h2>🦊 Browser / In-App Wallet Direct Call</h2>
+    <p class="sub">
+      If your browser wallet directly controls your <code>.ai</code> Agent ID address, connect and execute here.
+      (Note: standard QR-scan connects your main Binance wallet instead of the Agentic sub-wallet; if so, use the <code>baw</code> command above.)
+    </p>
+    <div class="row" style="align-items:center;">
+      <button class="btn-outline" style="flex:0 0 auto;" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+      <button class="btn-gold hidden" style="flex:0 0 auto;" id="directClaimBtn" onclick="directClaim()">Claim Safe Badge On-Chain</button>
+      <button class="btn-outline hidden" style="flex:0 0 auto;" id="directAuditBtn" onclick="directAudit()">Submit Audit Above</button>
+    </div>
+    <div id="walletStatus" class="notice hidden"></div>
+  </section>
+
+  <footer>
+    Contract: <a href="https://bscscan.com/address/0xf98135295dCd5426FD52aC9135544C067ce0bdAC" target="_blank" rel="noopener">0xf98135295dCd5426FD52aC9135544C067ce0bdAC</a> ·
+    Agent ID Registry: <a href="https://bscscan.com/address/0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F" target="_blank" rel="noopener">0x60B926...022F</a> ·
+    Zero custody, zero admin backdoor, MIT Open Source.
+  </footer>
+</div>
+
+<script>
+  const CONTRACT = '0xf98135295dCd5426FD52aC9135544C067ce0bdAC';
+  const AGENT_ID_REGISTRY = '0x60B9262456dE011F7d15a54CdD8c48bAaa8B022F';
+  const RPCS = [
+    'https://bsc-dataseed1.binance.org',
+    'https://bsc-dataseed2.binance.org',
+    'https://bsc-rpc.publicnode.com'
+  ];
+
+  // Exact function selectors verified against solc 0.8.24 ABI
+  const SEL_CLAIM = '0x070192e0';
+  const SEL_SUBMIT_AUDIT = '0x16c07737';
+  const SEL_HAS_AGENT_ID = '0x4eab3ef2';
+  const SEL_BALANCE_OF = '0x70a08231';
+  const SEL_TOTAL_BADGES = '0xa490a697';
+  const SEL_TOTAL_AUDITS = '0x4a07147f';
+  const SEL_TOTAL_AUDITORS = '0x6f98baef';
+  const SEL_GET_SUMMARY = '0xd6e37e66';
+
+  let connectedAddr = null;
+  let connectedHasAi = false;
+
+  async function rpcCall(method, params) {
+    let lastErr;
+    for (const url of RPCS) {
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params })
+        });
+        const j = await res.json();
+        if (j.error) throw new Error(j.error.message || 'RPC error');
+        return j.result;
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    throw lastErr || new Error('All BSC RPC endpoints failed');
+  }
+
+  function isValidAddr(a) {
+    return /^0x[a-fA-F0-9]{40}$/.test((a || '').trim());
+  }
+
+  function pad32Hex(hexNoPrefix) {
+    return hexNoPrefix.toLowerCase().padStart(64, '0');
+  }
+
+  function padUint(n) {
+    return BigInt(n).toString(16).padStart(64, '0');
+  }
+
+  function utf8Bytes(str) {
+    return new TextEncoder().encode(str);
+  }
+
+  // Zero-dependency ABI encoder for submitAudit(address,bool,uint8,string)
+  function encodeSubmitAudit(target, isRisk, riskCode, note) {
+    const cleanTarget = target.trim().replace(/^0x/i, '').toLowerCase();
+    const noteBytes = utf8Bytes(note || '');
+    const noteHex = Array.from(noteBytes).map((b) => b.toString(16).padStart(2, '0')).join('');
+    const paddedNoteHex = noteHex.padEnd(Math.ceil(noteBytes.length / 32) * 64, '0');
+    return (
+      SEL_SUBMIT_AUDIT +
+      pad32Hex(cleanTarget) +
+      padUint(isRisk ? 1 : 0) +
+      padUint(Number(riskCode || 0)) +
+      padUint(128) + // offset to dynamic string (4 * 32 bytes = 0x80)
+      padUint(noteBytes.length) +
+      paddedNoteHex
+    );
+  }
+
+  async function loadStats() {
+    try {
+      const [b, a, u] = await Promise.all([
+        rpcCall('eth_call', [{ to: CONTRACT, data: SEL_TOTAL_BADGES }, 'latest']),
+        rpcCall('eth_call', [{ to: CONTRACT, data: SEL_TOTAL_AUDITS }, 'latest']),
+        rpcCall('eth_call', [{ to: CONTRACT, data: SEL_TOTAL_AUDITORS }, 'latest'])
+      ]);
+      document.getElementById('statBadges').textContent = parseInt(b, 16);
+      document.getElementById('statAudits').textContent = parseInt(a, 16);
+      document.getElementById('statAuditors').textContent = parseInt(u, 16);
+    } catch (e) {
+      document.getElementById('statBadges').textContent = '-';
+    }
+  }
+
+  async function lookupContract() {
+    const target = document.getElementById('lookupTarget').value.trim();
+    const errEl = document.getElementById('lookupErr');
+    const box = document.getElementById('lookupResult');
+    errEl.classList.add('hidden');
+    if (!isValidAddr(target)) {
+      errEl.textContent = 'Please enter a valid 0x BSC contract address.';
+      errEl.classList.remove('hidden');
+      box.classList.add('hidden');
+      return;
+    }
+    try {
+      const data = SEL_GET_SUMMARY + pad32Hex(target.slice(2));
+      const [summaryHex, codeHex] = await Promise.all([
+        rpcCall('eth_call', [{ to: CONTRACT, data }, 'latest']),
+        rpcCall('eth_getCode', [target, 'latest'])
+      ]);
+      const clean = summaryHex.replace(/^0x/, '');
+      const safeVotes = parseInt(clean.slice(0, 64), 16);
+      const riskVotes = parseInt(clean.slice(64, 128), 16);
+      const codeBytes = codeHex && codeHex.length > 2 ? (codeHex.length - 2) / 2 : 0;
+      document.getElementById('resSafe').textContent = safeVotes;
+      document.getElementById('resRisk').textContent = riskVotes;
+      document.getElementById('resCode').textContent = codeBytes > 0 ? `${codeBytes} B (Contract)` : 'EOA / No Code';
+      box.classList.remove('hidden');
+    } catch (e) {
+      errEl.textContent = 'RPC lookup failed: ' + e.message;
+      errEl.classList.remove('hidden');
+    }
+  }
+
+  function switchTab(tab) {
+    const isBadge = tab === 'badge';
+    document.getElementById('panelBadge').classList.toggle('hidden', !isBadge);
+    document.getElementById('panelAudit').classList.toggle('hidden', isBadge);
+    document.getElementById('tabBadgeBtn').classList.toggle('active', isBadge);
+    document.getElementById('tabAuditBtn').classList.toggle('active', !isBadge);
+  }
+
+  function refreshBuilders() {
+    const rawWallet = document.getElementById('agentWallet').value.trim();
+    const fromAddr = isValidAddr(rawWallet) ? rawWallet : '<YOUR_AI_WALLET>';
+
+    // Badge commands
+    const badgeCmd = `baw contract-call execute --binanceChainId 56 --from ${fromAddr} --to ${CONTRACT} --value 0 --inputData ${SEL_CLAIM}`;
+    document.getElementById('bawBadgeCmd').textContent = badgeCmd;
+    document.getElementById('promptBadge').textContent =
+      `Use my Binance Agentic Wallet (baw) on BNB Smart Chain (chainId 56) to preview and then execute claimSafeBadge() on AgentShieldRegistry (${CONTRACT}) with value 0 and inputData ${SEL_CLAIM}.`;
+
+    // Audit commands
+    const target = document.getElementById('auditTarget').value.trim();
+    const isRisk = document.getElementById('auditVerdict').value === 'risk';
+    const riskCode = Number(document.getElementById('auditCode').value);
+    const note = document.getElementById('auditNote').value;
+    const noteLen = utf8Bytes(note).length;
+    document.getElementById('noteByteCount').textContent = noteLen;
+    document.getElementById('noteByteCount').style.color = noteLen > 120 ? 'var(--red)' : 'var(--muted)';
+
+    if (!isValidAddr(target)) {
+      document.getElementById('bawAuditCmd').textContent = '# Enter a valid 0x target contract address above';
+      document.getElementById('promptAudit').textContent = '# Enter a valid 0x target contract address above';
+      return;
+    }
+    if (noteLen > 120) {
+      document.getElementById('bawAuditCmd').textContent = '# Note exceeds 120 UTF-8 bytes — please shorten it';
+      return;
+    }
+    const auditData = encodeSubmitAudit(target, isRisk, riskCode, note);
+    document.getElementById('bawAuditCmd').textContent =
+      `baw contract-call execute --binanceChainId 56 --from ${fromAddr} --to ${CONTRACT} --value 0 --inputData ${auditData}`;
+    document.getElementById('promptAudit').textContent =
+      `Use my Binance Agentic Wallet (baw) on BNB Smart Chain (chainId 56) to preview and execute submitAudit on AgentShieldRegistry (${CONTRACT}) with value 0 and inputData ${auditData}.`;
+  }
+
+  async function copyEl(id, btn) {
+    const txt = document.getElementById(id).textContent;
+    await navigator.clipboard.writeText(txt);
+    const old = btn.textContent;
+    btn.textContent = 'Copied ✓';
+    setTimeout(() => (btn.textContent = old), 1500);
+  }
+
+  async function connectWallet() {
+    const status = document.getElementById('walletStatus');
+    status.classList.remove('hidden', 'ok', 'warn', 'err');
+    if (!window.ethereum) {
+      status.classList.add('warn');
+      status.textContent = 'No browser Web3 wallet detected. Use the one-line baw command or AI Agent prompt above.';
+      return;
+    }
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      connectedAddr = accounts[0];
+      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+      if (chainId !== '0x38') {
+        try {
+          await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x38' }] });
+        } catch {}
+      }
+      const balHex = await rpcCall('eth_call', [
+        { to: AGENT_ID_REGISTRY, data: SEL_BALANCE_OF + pad32Hex(connectedAddr.slice(2)) },
+        'latest'
+      ]);
+      connectedHasAi = BigInt(balHex) > 0n;
+      document.getElementById('connectBtn').textContent = connectedAddr.slice(0, 6) + '...' + connectedAddr.slice(-4);
+      if (connectedHasAi) {
+        document.getElementById('agentWallet').value = connectedAddr;
+        refreshBuilders();
+        document.getElementById('directClaimBtn').classList.remove('hidden');
+        document.getElementById('directAuditBtn').classList.remove('hidden');
+        status.classList.add('ok');
+        status.textContent = `Connected ${connectedAddr} — verified .ai Agent ID holder! You can execute directly below.`;
+      } else {
+        document.getElementById('directClaimBtn').classList.add('hidden');
+        document.getElementById('directAuditBtn').classList.add('hidden');
+        status.classList.add('warn');
+        status.textContent = `Connected ${connectedAddr}, but this address does NOT hold a .ai Agent ID (Binance App QR usually connects your main wallet instead of your Agentic sub-wallet). Please copy the one-line baw command or AI Agent prompt above.`;
+      }
+    } catch (e) {
+      status.classList.add('err');
+      status.textContent = 'Wallet connection failed: ' + (e.message || e);
+    }
+  }
+
+  async function sendTx(data) {
+    const status = document.getElementById('walletStatus');
+    status.classList.remove('hidden', 'ok', 'warn', 'err');
+    try {
+      const txHash = await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [{ from: connectedAddr, to: CONTRACT, value: '0x0', data }]
+      });
+      status.classList.add('ok');
+      status.innerHTML = `Transaction sent! <a href="https://bscscan.com/tx/${txHash}" target="_blank" style="color:var(--gold);">${txHash.slice(0, 14)}...</a>`;
+      setTimeout(loadStats, 4000);
+    } catch (e) {
+      status.classList.add('err');
+      status.textContent = 'Transaction failed: ' + (e.message || e);
+    }
+  }
+
+  function directClaim() {
+    sendTx(SEL_CLAIM);
+  }
+
+  function directAudit() {
+    const target = document.getElementById('auditTarget').value.trim();
+    const isRisk = document.getElementById('auditVerdict').value === 'risk';
+    const riskCode = Number(document.getElementById('auditCode').value);
+    const note = document.getElementById('auditNote').value;
+    if (!isValidAddr(target) || utf8Bytes(note).length > 120) return;
+    sendTx(encodeSubmitAudit(target, isRisk, riskCode, note));
+  }
+
+  refreshBuilders();
+  loadStats();
+  lookupContract();
+</script>
+</body>
+</html>
