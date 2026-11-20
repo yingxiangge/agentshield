@@ -1,6 +1,6 @@
 # AgentShield Cold-Start Launch Posts (Stage 1: 30 Unique `.ai` Addresses)
 
-> Replace `<CONTRACT_ADDR>` with the deployed & BscScan-verified `AgentShieldRegistry` address before posting.
+> Replace `0xf98135295dCd5426FD52aC9135544C067ce0bdAC` with the deployed & BscScan-verified `AgentShieldRegistry` address before posting.
 
 ---
 
@@ -16,7 +16,7 @@ Zero protocol fee (gas only, ~$0.01), zero fund custody, fully verified on BscSc
 1️⃣ Claim your free Safe Agent Badge (`claimSafeBadge`)
 2️⃣ Flag honeypots / attest safe BSC contracts (`submitAudit`)
 
-Verified Contract: https://bscscan.com/address/<CONTRACT_ADDR>#writeContract
+Verified Contract: https://bscscan.com/address/0xf98135295dCd5426FD52aC9135544C067ce0bdAC#writeContract
 GitHub + Agentic CLI: https://github.com/yingxiangge/agentshield
 
 Fellow `.ai` Agent ID holders — try claiming your free Safe Agent Badge & test it on-chain! 👇
@@ -37,7 +37,7 @@ Fellow `.ai` Agent ID holders — try claiming your free Safe Agent Badge & test
 1. `claimSafeBadge()`：免费领取 1 枚不可转让的 Safe Agent 链上安全徽章（每址限 1 次）
 2. `submitAudit()`：对任意 BSC 合约提交安全背书或貔貅风险举报
 
-BscScan 开源合约：https://bscscan.com/address/<CONTRACT_ADDR>#writeContract
+BscScan 开源合约：https://bscscan.com/address/0xf98135295dCd5426FD52aC9135544C067ce0bdAC#writeContract
 GitHub 开源与 Agent CLI：https://github.com/yingxiangge/agentshield
 
 #BNBChain #BinanceWallet #AgentID
