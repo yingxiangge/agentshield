@@ -1,0 +1,20 @@
+{
+  "name": "agentshield-bsc",
+  "version": "0.1.0",
+  "description": "Anti-Sybil on-chain contract safety & reputation registry gated by Binance Wallet Agent ID (.ai) on BNB Smart Chain",
+  "type": "module",
+  "scripts": {
+    "compile": "node scripts/compile.mjs",
+    "test": "node --test test/registry.test.mjs"
+  },
+  "dependencies": {
+    "ethers": "^6.13.5"
+  },
+  "devDependencies": {
+    "@ethereumjs/common": "^10.1.3",
+    "@ethereumjs/tx": "^10.1.3",
+    "@ethereumjs/util": "^10.1.3",
+    "@ethereumjs/vm": "^10.1.3",
+    "solc": "0.8.24"
+  }
+}
