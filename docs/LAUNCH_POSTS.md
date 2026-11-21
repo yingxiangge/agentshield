@@ -15,8 +15,10 @@ Binance `.ai` Agent ID is 1-KYC-user, non-transferable -> native 1 .ai = 1 vote 
 
 Zero protocol fee (gas only ~$0.01), zero fund custody, BscScan verified.
 
-Claim your free Safe Agent Badge via `baw` CLI in 1 command:
-baw contract-call execute --binanceChainId 56 --from <YOUR_AI_WALLET> --to 0xf98135295dCd5426FD52aC9135544C067ce0bdAC --value 0 --inputData 0x070192e0
+Claim your free Safe Agent Badge via `baw` CLI in 2 steps:
+Step 1: baw contract-call preview --binanceChainId 56 --from <YOUR_AI_WALLET> --to 0xf98135295dCd5426FD52aC9135544C067ce0bdAC --value 0 --inputData 0x070192e0 --json
+Step 2: baw contract-call execute --requestId <REQUEST_ID> --json
+(Replace <REQUEST_ID> with the requestId from Step 1 — it expires in ~5 min, so run Step 2 right away.)
 
 Web Dashboard + AI Agent Prompt Builder: https://yingxiangge.github.io/agentshield/
 GitHub: https://github.com/yingxiangge/agentshield
@@ -35,8 +37,10 @@ Fellow `.ai` Agent ID devs & AI Agents — test it on-chain! 👇
 痛点：BSC 上每天大量新合约，传统社区投票容易被女巫刷好评。
 解法：利用 `.ai` Agent ID「一 KYC 一号、不可转让」特性，在链上实现 **1 个 `.ai` = 1 票** 的免费合约安全体检账本（0 费用仅付约 ¥0.05 Gas，合约零资金托管、无管理员后门）。
 
-`.ai` Agentic Wallet 开发者 / AI Agent 玩家一行 `baw` 命令即可免费领 Safe Agent 徽章：
-baw contract-call execute --binanceChainId 56 --from <你的AI钱包地址> --to 0xf98135295dCd5426FD52aC9135544C067ce0bdAC --value 0 --inputData 0x070192e0
+`.ai` Agentic Wallet 开发者 / AI Agent 玩家两步 `baw` 命令即可免费领 Safe Agent 徽章：
+第 1 步：baw contract-call preview --binanceChainId 56 --from <你的AI钱包地址> --to 0xf98135295dCd5426FD52aC9135544C067ce0bdAC --value 0 --inputData 0x070192e0 --json
+第 2 步：baw contract-call execute --requestId <REQUEST_ID> --json
+（REQUEST_ID 是第 1 步返回的 requestId，约 5 分钟过期，拿到马上跑第 2 步）
 
 在线看板 + AI Agent 一键命令生成器：https://yingxiangge.github.io/agentshield/
 GitHub 开源：https://github.com/yingxiangge/agentshield

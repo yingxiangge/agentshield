@@ -168,10 +168,14 @@
 
     <label for="agentWallet">Your <code>.ai</code> Agentic Wallet Address (optional — fills <code>--from</code>)</label>
     <input id="agentWallet" placeholder="0x... (leave blank to use <YOUR_AI_WALLET>)" oninput="refreshBuilders()" />
+    <div class="notice" style="color:var(--muted); margin-bottom:12px;">
+      Step 1 returns a <code>requestId</code> (expires in ~5 min) — replace <code>&lt;REQUEST_ID&gt;</code> and run Step 2 right away.<br />
+      In mainland China, prefix each command with <code>NODE_OPTIONS=--use-env-proxy</code> if you hit a network/TLS error.
+    </div>
 
     <!-- Tab 1: Badge -->
     <div id="panelBadge">
-      <label>One-Line <code>baw</code> Command (Preview &amp; Execute — Zero Fee, Gas Only)</label>
+      <label>Two-Step <code>baw</code> Command (Preview &amp; Execute — Zero Fee, Gas Only)</label>
       <pre id="bawBadgeCmd"></pre>
       <div class="row">
         <button class="btn-gold btn-sm" style="flex:0 0 auto;" onclick="copyEl('bawBadgeCmd', this)">Copy baw Command</button>
@@ -375,7 +379,7 @@
     const fromAddr = isValidAddr(rawWallet) ? rawWallet : '<YOUR_AI_WALLET>';
 
     // Badge commands
-    const badgeCmd = `baw contract-call execute --binanceChainId 56 --from ${fromAddr} --to ${CONTRACT} --value 0 --inputData ${SEL_CLAIM}`;
+    const badgeCmd = `baw contract-call preview --binanceChainId 56 --from ${fromAddr} --to ${CONTRACT} --value 0 --inputData ${SEL_CLAIM} --json\nbaw contract-call execute --requestId <REQUEST_ID> --json`;
     document.getElementById('bawBadgeCmd').textContent = badgeCmd;
     document.getElementById('promptBadge').textContent =
       `Use my Binance Agentic Wallet (baw) on BNB Smart Chain (chainId 56) to preview and then execute claimSafeBadge() on AgentShieldRegistry (${CONTRACT}) with value 0 and inputData ${SEL_CLAIM}.`;
@@ -400,7 +404,7 @@
     }
     const auditData = encodeSubmitAudit(target, isRisk, riskCode, note);
     document.getElementById('bawAuditCmd').textContent =
-      `baw contract-call execute --binanceChainId 56 --from ${fromAddr} --to ${CONTRACT} --value 0 --inputData ${auditData}`;
+      `baw contract-call preview --binanceChainId 56 --from ${fromAddr} --to ${CONTRACT} --value 0 --inputData ${auditData} --json\nbaw contract-call execute --requestId <REQUEST_ID> --json`;
     document.getElementById('promptAudit').textContent =
       `Use my Binance Agentic Wallet (baw) on BNB Smart Chain (chainId 56) to preview and execute submitAudit on AgentShieldRegistry (${CONTRACT}) with value 0 and inputData ${auditData}.`;
   }
@@ -418,7 +422,7 @@
     status.classList.remove('hidden', 'ok', 'warn', 'err');
     if (!window.ethereum) {
       status.classList.add('warn');
-      status.textContent = 'No browser Web3 wallet detected. Use the one-line baw command or AI Agent prompt above.';
+      status.textContent = 'No browser Web3 wallet detected. Use the two-step baw command or AI Agent prompt above.';
       return;
     }
     try {
@@ -447,7 +451,7 @@
         document.getElementById('directClaimBtn').classList.add('hidden');
         document.getElementById('directAuditBtn').classList.add('hidden');
         status.classList.add('warn');
-        status.textContent = `Connected ${connectedAddr}, but this address does NOT hold a .ai Agent ID (Binance App QR usually connects your main wallet instead of your Agentic sub-wallet). Please copy the one-line baw command or AI Agent prompt above.`;
+        status.textContent = `Connected ${connectedAddr}, but this address does NOT hold a .ai Agent ID (Binance App QR usually connects your main wallet instead of your Agentic sub-wallet). Please copy the two-step baw command or AI Agent prompt above.`;
       }
     } catch (e) {
       status.classList.add('err');
